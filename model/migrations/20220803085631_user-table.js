@@ -5,7 +5,7 @@
  exports.up = function(knex) {
     return knex.schema.createTable('user',table=>{
       table.increments('id').primary();
-      table.string('phone');
+      table.string('phone').unique();
       table.string('type');
       table.string('password')
       table.timestamps(true,true);

@@ -15,8 +15,14 @@ module.exports={
             //use bcrypt to encrypt the password
             const hashedPass = await bcrypt.hash(req.body.password, 10)
             const user = {phone: req.body.phone, type: req.body.type, password: hashedPass}
+            const checkPhone = await knex.select('phone').from('user').where('phone',req.body.phone)
+            if(checkPhone.length > 0){
+                res.status(400).json({message: 'Phone number already exists'})
+                return;
+            }
             await knex('user').insert(user)
-            res.json({'message':'User created successfully'});
+            const userInfo = await knex.select('*').from('user').where('phone',req.body.phone)
+            res.json({'message':'User created successfully','id':userInfo[0].id, 'type':userInfo[0].type});
             
         }catch{
             res.status(500);
