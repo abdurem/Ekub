@@ -1,4 +1,5 @@
 const knex = require('../knex');
+const Employee = require('../models/Employee');
 
 module.exports={
     getAllemployees: (req,res)=>{
@@ -7,19 +8,25 @@ module.exports={
         })
     },
     getemployeeById: (req,res)=>{
-        knex.select('*').from('employee').where('id',req.params.id).then(employee=>{
+        const emp = new Employee();
+        emp.searchId(req.params.id)
+        knex.select('*').from('employee').where('id',emp.id).then(employee=>{
             res.json(employee);
         })
     },
     createemployee: (req,res)=>{
-        knex('employee').insert(req.body).then(employee=>{
+        const emp = new Employee();
+        emp.createEmployee(req.body.fullName,req.body.userId)
+        knex('employee').insert(emp).then(employee=>{
             res.json({'message':'employee created successfully'});
         }).catch(err=>{
             res.status(500).json(err);
         });
     },
     updateemployee: (req,res)=>{
-        knex('employee').where('id',req.params.id).update(req.body).then(employee=>{
+        const emp = new Employee();
+        emp.updateEmployee(req.body.fullName,req.body.userId)
+        knex('employee').where('id',req.params.id).update(emp).then(employee=>{
             res.json({'message':'employee updated successfully'});
         }).catch(err=>{
             res.status(500).json(err);
