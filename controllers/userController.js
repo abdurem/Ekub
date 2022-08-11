@@ -1,5 +1,6 @@
 const knex = require('../knex');
 const bcrypt = require('bcrypt')
+const User = require('../models/user')
 
 module.exports={
     getAllUsers: async (req,res)=>{
@@ -7,14 +8,17 @@ module.exports={
         res.json(users)
     },
     getUserById: async (req,res)=>{
-        const user = await knex.select('*').from('user').where('id',req.params.id)
+        const UserId = new User;
+        UserId.searchId(req.params.id)
+        const user = await knex.select('*').from('user').where('id',UserId.id)
         res.json(user);
     },
     createUser: async (req,res)=>{
         try{
             //use bcrypt to encrypt the password
             const hashedPass = await bcrypt.hash(req.body.password, 10)
-            const user = {phone: req.body.phone, type: req.body.type, password: hashedPass}
+            const user = new User();
+            user.createUser(req.body.phone, req.body.type, hashedPass)
             const checkPhone = await knex.select('phone').from('user').where('phone',req.body.phone)
             if(checkPhone.length > 0){
                 res.status(400).json({message: 'Phone number already exists'})
@@ -31,9 +35,10 @@ module.exports={
     updateUser: async (req,res)=>{
         try{
             const hashedPass = await bcrypt.hash(req.body.password,10)
-            const updateUser = {name: req.body.name, type: req.body.type, password: hashedPass}
-            const user = await knex('user').where('id',req.params.id).update(updateUser);
-            if(user)
+            const user = new User();
+            user.updateUser(req.body.phone, req.body.type, hashedPass)
+            const updatedUser = await knex('user').where('id',req.params.id).update(user);
+            if(updatedUser)
                 res.json({'message':'User updated successfully'});
         }catch(err){
             res.status(500).json(err);
@@ -41,7 +46,9 @@ module.exports={
     },
     deleteUser: async (req,res)=>{
         try{
-            const user = await knex('user').where('id',req.params.id).first();
+            const userId = new User();
+            userId.searchId(req.params.id)
+            const user = await knex('user').where('id',userId.id).first();
             if(!user){
                 return res.status(404).json({'message':'User not found'});
             }
@@ -52,12 +59,15 @@ module.exports={
         }
     },
     auth: async (req,res)=>{
-        try{   
-            const user = await knex.select('*').from('user').where('phone',req.body.phone);
-            // if(!user.length)
-            //     return res.status(500).json({'message':'Invalid credentials'});
-            if(await bcrypt.compare(req.body.password,user[0].password)){
-                res.json(user[0].type);
+        try{
+            const user = new User();
+            user.authUser(req.body.phone, req.body.password);
+            const userPassword = await knex.select('*').from('user').where('phone',user.phone);
+            // res.send(userPassword[0]);
+            if(!userPassword.length)
+                return res.status(500).json({'message':'Invalid credentials'});
+            if(await bcrypt.compare(user.password,userPassword[0].password)){
+                res.json(userPassword[0].type);
             }else{
                 res.status(500).json({'message':'Invalid credentials'});
             }
