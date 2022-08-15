@@ -1,10 +1,9 @@
 const express = require('express');
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 const app = express();
 const bodyParser = require('body-parser');
 const path = require('path');
-
-// import fetch from 'node-fetch';
+const cors = require('cors');
 
 const userRoute = require('./route/user');
 const employeeRoute = require('./route/employee');
@@ -15,6 +14,9 @@ const cust_equbRoute = require('./route/cust-equb');
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+app.use(cors(
+    {origin: '*'},
+));
 
 app.use('/api/user', userRoute);
 app.use('/api/employee',employeeRoute);
