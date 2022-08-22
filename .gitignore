@@ -2,3 +2,4 @@ node_modules/
 b1/
 backup/
 .env
+client.rest
