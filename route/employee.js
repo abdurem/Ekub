@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const employeeController = require('../controllers/employeeController.js');
+const authorizeToken = require('../middlewares/authJWT.js');
 
 
-router.get('/', employeeController.getAllemployees);
-router.get('/:id', employeeController.getemployeeById);
-router.post('/', employeeController.createemployee);
-router.put('/:id', employeeController.updateemployee);
-router.delete('/:id', employeeController.deleteemployee);
+router.get('/', authorizeToken, employeeController.getAllemployees);
+router.get('/:id', authorizeToken, employeeController.getemployeeById);
+router.post('/', authorizeToken, employeeController.createemployee);
+router.put('/:id', authorizeToken, employeeController.updateemployee);
+router.delete('/:id', authorizeToken, employeeController.deleteemployee);
 
 
 module.exports = router;
