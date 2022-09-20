@@ -5,9 +5,15 @@
  exports.up = function(knex) {
     return knex.schema.createTable('employee',table=>{
       table.increments('id').primary();
-      table.string('fullName');
       table.integer('userId').unsigned();
+      table.string('fullName');
+      table.string('houseNo')
+      table.integer('woreda');
+      table.string('subCity');
+      table.string('city');
+      table.boolean('status');
       table.timestamps(true,true);
+  
       //foreign key
       table.foreign('userId').references('id').inTable('user');
     })
