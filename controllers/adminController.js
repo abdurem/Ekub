@@ -3,11 +3,15 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 
 async function authAdmin( req, res ){
-    var password = await knex.select('password').from('admin').where('username',req.body.username);
-    if( password[0] != null ){
-        password = password[0].password
-        if(password === req.body.password){
-            res.json({success: true})
+    var admin = await knex.select('*').from('admin').where('username',req.body.username);
+    if( admin[0] != null ){
+        admin = admin[0]
+        if(admin.password === req.body.password){
+            jwt.sign({admin},'secretkey',{ expiresIn: '100m'},(err,token)=>{
+                if(err)
+                    return res.status(500).json(err);
+                res.json({token, id: admin.id, type: admin.username});
+            })
         }
         else
             res.json({success: false})
