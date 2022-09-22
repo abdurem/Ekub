@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 module.exports={
     getAllUsers: async (req,res)=>{
         const users = await knex.select('*').from('user')
-        res.json(req.user)
+        res.json(users)
     },
     getUserById: async (req,res)=>{
         const UserId = new User;
@@ -72,10 +72,9 @@ module.exports={
 
             if(!userInfo.length)
                 return res.status(500).json({success: false ,message:'No user found with the given phone'});
-            else
-            if(await bcrypt.compare(user.password,userInfo[0].password)){
+            else if(await bcrypt.compare(user.password,userInfo[0].password)){
 
-                jwt.sign({userInfo},'secretkey',{ expiresIn: '10m'},(err,token)=>{
+                jwt.sign({userInfo},'secretkey',{ expiresIn: '2m'},(err,token)=>{
                     if(err)
                         return res.status(500).json(err);
                     res.json({token, id: userInfo[0].id, type: userInfo[0].type});
@@ -87,5 +86,13 @@ module.exports={
         }catch(err){
             res.status(500).json(err);
         }
+    },
+    authToken: async (req, res)=>{
+        const userInfo = req.body;
+        jwt.sign({userInfo},'secretkey',{ expiresIn: '2m'},(err,token)=>{
+            if(err)
+                return res.status(500).json(err);
+            res.json({token, id: userInfo.id, type: userInfo.type});
+        })
     }
 }

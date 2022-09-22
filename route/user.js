@@ -10,6 +10,7 @@ router.post('/', userController.createUser);
 router.put('/:id', authorizeToken, userController.updateUser);
 router.delete('/:id', authorizeToken, userController.deleteUser);
 router.post('/login', userController.auth);
+router.post('/authToken', authorizeToken, userController.authToken);
 
 
 module.exports = router;
